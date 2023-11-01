@@ -49,16 +49,6 @@ function namedFun(value) {
 const anonymousFunc = ((value) => {
     console.log(value, ' -> this is the anonymous value');
 })
-// anonymousFunc(10);
+anonymousFunc(10);
 // ****** ----------------------------------------- ******
 
-function greet(name) {
-  console.log('Hello, ' + name + '!');
-}
-
-function processUserInput(callback) {
-  var name = prompt('Please enter your name: ');
-  callback(name);
-}
-
-processUserInput(greet);
