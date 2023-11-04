@@ -19,26 +19,26 @@ setTimeout(() => {
  */
 let counter = 0;
 const interal = setInterval(() => {
-    console.log('Itration is: ', counter++);
+    console.log('Itration is: ', counter++); // completed all function then only execute this console.....
     if (counter === 5) {
         clearInterval(interal);
     }
 },1500);
 
 // process.nextTick()
-console.log('start');
+console.log('start next tick');
 
 process.nextTick(() => {
     console.log('Ececute next tick');
 }, 2000);
 
-console.log('end');
-// o/p: first execute -> 'start'. 2nd ececute -> 'end'. 3rd execute
+console.log('end next tick');
+// o/p: first execute -> 'start'. 2nd execute -> 'end'. 3rd execute
 
 //setImmediate is used to execute a call back function before excute the i/o operation
 
 console.log('immediate Start....');
 setImmediate(() => {
-    console.log('Set immediate ......');
+    console.log('Set immediate ......'); // this one is execute befor process.tick() 
 });
 console.log('immediate end.......');
