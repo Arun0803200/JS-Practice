@@ -1,0 +1,330 @@
+1.) What is node js?
+Node js is runtime environment wher the JS runs on server side.
+Node.js based on Event Driven Architecture wher I/O runs as asynchronously and making it light weight and efficient.
+
+2.) What tool is used to make consistent code style?
+ESLint is used to make the code consistent.
+
+3.) What is first class function in JS ?
+It is fundamental concept of Modern Programing Language. the first-class function means that function are treated like any other variable
+
+4.) How do you manage oackages in your Node.JS Project ?
+Create package.json file first it should manage our project dependencies Packages,
+Using package-lock.json file for Lock the dependency Tree that means that records the exact versions of all installed packages.
+
+5.) How Node.JS Better that other framework ?
+*) Node.JS Basically work with Asynchronus in Nature.
+*) Node.JS is Non-Blocking I/O.
+*) Its handle req and res concurrently.
+*) Its performing with single threading in nature
+*) Node.JS is based on Event Drive Architecture.
+*) We will use JS to develop the FE & BE Development will be much faster.
+
+6.) How the "control Flow" controls the function calls ?
+JS Execute the code line by line, from top to bottom.
+
+7.) Timing features of Node.JS?
+*) setTimeOut/clearTimeOut - Used to implement delay in code execution.
+*) setInterval/clearInterval - Used to run a code multiple time.
+*) setImmediate/clearImmediate - Used to execute in the next itration of the event Loop.
+*) process.nextTick - Runs before any I/O events, timers or setImmediate.
+
+8.) What are the advantages of using Promises insted of callbacks ?
+*) Avoid Callback Hell.
+*) Promise Provide cleaner, flatter and more readable code.
+*) Better Error Handling, Promise Have catch() Method for handles errors anywhere in the chain.
+*) Promise supports Async/Await
+
+9.) What is fork on node JS ?
+*) Fork is a method used to create a new child process.
+*) That can be run the task concurrently with the parent process.
+*) Fork is used to generate multiple workers to execute the code.
+
+10.) Why node.js single threaded ?
+*) Node JS Handle Thousand of I/O request Easily and consurrently
+*) Node.JS is designed by non-blockig uses async callback and event loop.
+
+11.) How do you create Simple Server in Nod.JS
+
+var http = require('http');
+http.createServer((req: any, res: any)=> {
+	res.end('Hello World');
+}).listen(3000);
+
+
+12.) How Many Types of APT function?
+There are Two type of API Function:-
+Asynchronous, Non-Blocking function.
+Synchtonous,Blocking function.
+
+13.) What is REPL is Node.js ?
+REPL - Read-Eval-Print-Loop;
+*) Read -> Take input from the user.
+*) Eval -> Evaluates the input(Display the Output).
+*) print -> Print the result.
+*) Loop -> Waits for the next inputs.
+
+14.) List down the two arguments that async.queue takes as input ?
+*) Worker Function -> that process each task in the queue.
+*) Concurrency Value -> A function you must call when the task is done.
+
+15.) What is purpose of module.exports ?
+module.exports is used to export functions, objects, variables from a file(module)
+So they can use another file via require().
+--------------------------------------------------------------------
+16.) Explain the concept of stub in Node.js
+*)Stub is used to handle test cses when you don't want to call the real function.
+*)can able to control the retun value of the function
+
+17.) Describe the exit codes of Node.JS ?
+When process exist, it returns an exist code to the OS. this code tell whether the process ended successfully or with an error.
+
+18.) For node.js, why google uses v8engine ?
+we have spidermonkey from Firefox & chakra from edge but gooble's v8 is the most evolved & faster.
+
+19.) Why should you separate express app and server ?
+Express App(app.js or app.ts) - Handles routes, middleware and business logic.
+Serer(server.js or index.js) - Starts the HTTP server.
+
+project/
+│
+├── app.js        ← Express app (no port/listen)
+├── server.js     ← HTTP server (calls app.listen)
+
+
+Why?
+*) can test routes without starting a server
+*) Implement Clustering on server.js
+*) Easier to scale, easier to test, easier maintain
+
+20.) Explain Reactor pattern in NodeJS
+
+Imagine a restaurant:
+
+Only one waiter.
+
+Customers come in and place orders (e.g., biryani, dosa).
+
+While biryani is being cooked in the kitchen, the waiter doesn’t wait.
+
+He goes to the next customer and takes another order.
+
+When the biryani is ready, the kitchen notifies the waiter → he serves it.
+
+
+What Happened Here?
+Waiter (Node.js) took Customer #1’s order and gave it to the kitchen (libuv).
+
+While it's cooking, he moved to Customer #2 (non-blocking).
+
+When the biryani is ready, the kitchen rang the bell (callback fired).
+
+Waiter served the biryani (callback executed).
+=============================================================================
+Reactor Pattern in Node.js:
+Event loop listens for I/O events (like file read, HTTP request).
+
+Instead of waiting, it continues handling other tasks.
+
+When the I/O finishes, it "reacts" by executing a callback.
+
+21.) What is middleware:-
+Middleware is comes in between your request and business logic.
+It mainly used to:-
+*) Capture Logs,
+*) Enable Rate Limit and
+*) Handling Authentication.
+
+We ware implemented third pary middleware also that is body-parser
+
+
+22.) What is Node.js Buffer:-
+Buffer is temporary Memory that is mainly used by stream to hold on to some data until consumed
+This also support legacy endoding like utf-8
+
+23.) What is node.js streams?
+straming = reading or writing data in small parts.
+use "const stream = fs.createReadStream('bigfile.txt', 'utf8');" insted of "const data = fs.readFileSync('bigfile.txt');"
+
+24.) How can we use async await in node js ?
+
+async/await is a way to write asynchtonous code that look like synchronous code
+
+function waitOneSecond() {
+  return new Promise(resolve => {
+    setTimeout(() => {
+      resolve('⏳ Done after 1 second');
+    }, 1000);
+  });
+}
+
+async function runTask() {
+  console.log('⏯️ Start');
+  const result = await waitOneSecond();
+  console.log(result);  // ⏳ Done after 1 second
+  console.log('✅ Finished');
+}
+
+runTask();
+
+25.) How does node.js overcome the problem of blocking of I/O operation ?
+
+           ┌────────────────────────────────────┐
+           │        Incoming Request            │
+           └────────────────────────────────────┘
+                          │
+                          ▼
+           ┌────────────────────────────┐
+           │     Node.js Main Thread    │  (Single Thread)
+           └────────────────────────────┘
+                          │
+             ┌────────────┴────────────┐
+             │                         │
+             ▼                         ▼
+   ┌────────────────┐       ┌──────────────────────────┐
+   │ Is it CPU work?│       │ Is it I/O work (file/db)?│
+   └────────────────┘       └──────────────────────────┘
+             │                         │
+             ▼                         ▼
+  [ Handle it immediately ]    ┌───────────────────────┐
+                               │ Hand off to libuv     │
+                               │ (Thread pool or OS)   │
+                               └───────────────────────┘
+                                        │
+                                        ▼
+                               [ Work in background ]
+                                        │
+                                        ▼
+                          ┌────────────────────────────┐
+                          │      I/O Completed!         │
+                          └────────────────────────────┘
+                                        │
+                      Push callback to Event Queue (Task Queue)
+                                        │
+                                        ▼
+                          ┌────────────────────────────┐
+                          │      Event Loop picks it    │
+                          │      and runs callback      │
+                          └────────────────────────────┘
+Request comes to Node.js.
+
+If it’s I/O (e.g. file, DB), Node doesn’t wait.
+
+It sends the work to libuv (native C++ library under Node.js).
+
+When done, libuv notifies Node.js.
+
+The event loop picks the callback and runs it.
+
+26.) Different between process.nextTick() ans setImmediate()
+*) setImmediate/clearImmediate - Used to execute in the next itration of the event Loop.
+*) process.nextTick - Runs before any I/O events, timers or setImmediate.
+
+27.) Node js single thread then how does it handle concurrency ?
+
+The Libuv sets up a thread pool to handle such concurrency.
+That thread pool handling blocking operations, like (fs, dns(lookup), crypto operations)
+
+28.) What is an event-loop in Node JS?
+
+Event loop is a end-less loop and this is heart of node js that allows it perform non-blocking I/O operation. even though its single threaded.
+
+*) It runs asynchronous code to run efficiently
+*) It handle thousand of requests with out creating new thread.
+*) With out event loop the node js wouldn't be fast or scalable.
+
+
+29.) What do you understand by callback hell ?
+When we write too many nested callbacks making your code
+Hard to read,
+Hard to maintain,
+Hard to debug
+
+30.) What is an event emitter in node js ?
+EentEmitter is a build-in class on node.js that can allows you to create, fire, and listen to custom events.
+
+const EventEmitter = require('events');
+
+// Create a new emitter
+const emitter = new EventEmitter();
+
+// Register a listener for 'greet' event
+emitter.on('greet', (name) => {
+  console.log(`Hello, ${name}!`);
+});
+
+// Emit the event
+emitter.emit('greet', 'Arun');
+
+Use-Case of EentEmitterr in Node.JS
+*) Handling custom app-level eents
+*) Creating pub-sub architecture
+*) Communicate between different part of our app
+
+31.) Enhancing node.js performance through clustering.
+By default node.js runs on a single thread, which means
+	it uses only 1CPU core.
+	It can handle only one event loop.
+But modern machines have multiple CPU cores. Clustering allows you to take advantage of all cores and imporve scalability.
+
+How its Work?
+Master Processes: Starts and manages worker processes.
+Worker Processes: Each in full node.js process with its own memory and event loop.
+All Worker share the same port using cluster module.
+
+// server.js
+const cluster = require('cluster');
+const os = require('os');
+const express = require('express');
+
+const numCPUs = os.cpus().length;
+
+if (cluster.isMaster) {
+  console.log(`Master ${process.pid} is running`);
+
+  // Fork workers
+  for (let i = 0; i < numCPUs; i++) {
+    cluster.fork();
+  }
+
+  // Optional: Listen for dying workers
+  cluster.on('exit', (worker) => {
+    console.log(`Worker ${worker.process.pid} died`);
+    cluster.fork(); // Restart the worker
+  });
+} else {
+  const app = express();
+
+  app.get('/', (req, res) => {
+    res.send(`Hello from Worker ${process.pid}`);
+  });
+
+  app.listen(3000, () => {
+    console.log(`Worker ${process.pid} started`);
+  });
+}
+
+| Feature                    | Benefit                                          |
+| -------------------------- | ------------------------------------------------ |
+| 💪 Multi-core utilization  | Uses **all CPU cores** for concurrent processing |
+| ⚡ Faster response time    | Requests are handled in **parallel**             |
+
+32.) What is thread pool and library handles it in Node js?
+
+*) Thread Pool in node.js is a group of background worker used to handle expensive or blocking tasks outside the main (eent loop) thread.
+
+*) This allows Node.js to stay non-blocking and responsive, even when dealing with heavy I/O operations.
+
+Who handle the Thread Poll?
+
+*) The libuv library handle the thread pool in node.js
+*) libuv is a C library that powers Node's eent loop and manages:
+	Thread Pool
+	Async I/O operation
+	Timers
+	cross=platform support(Win,Lnx,etc.)	
+
+*) default thread pool is 4 you can increase it up to 128 using.
+
+
+
