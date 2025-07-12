@@ -7,7 +7,7 @@ const promise3 = new Promise((resolve, reject) => {
     setTimeout(resolve, 5000, 'Welcome !!');
 })
 const result = Promise.all([promise1, promise2, promise3]).then((alue) => {
-    console.log(alue, 'value...........'); // When all are completed then only the promise get resolve
+    console.log(alue, 'value...........'); // When all are completed with resolve state then only got succerss if any one got reject the Promise not got fullfilled
 }).catch((err) => {
     console.log(err, 'error..........');
 });
@@ -29,7 +29,7 @@ Promise.any([anyPromise1, anyPromise2]).then((value) => {
 }).catch((err) => {
     console.log(err);
 });
-
+      
 // Promise.allSettled
 const settledPromise1 = new Promise((resolve, reject) => {setTimeout(resolve, 100, '100 settled...')});
 const settledPromise2 = new Promise((resolve, reject) => {setTimeout(resolve, 200, '200 settled...')});
@@ -37,4 +37,4 @@ Promise.allSettled([settledPromise1, settledPromise2]).then((value) => {
     console.log(value);
 }).catch((err) => {
     console.log(err);
-})
+}) // All are getting success  with full filled status
