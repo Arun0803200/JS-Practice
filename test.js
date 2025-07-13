@@ -1,3 +1,36 @@
+// SET
+const setOperation = () => {
+    const newSet = new Set();
+    newSet.add(1);
+    newSet.add(2);
+    newSet.add(3);
+    newSet.add(4);
+    newSet.add(4);
+    console.log(newSet, 'newset');
+
+    const arraySet = new Set([1,2,3,4,5]);
+    console.log(arraySet.has(3)); // true or false
+    console.log(Array.from(arraySet)); // [ 1, 2, 3, 4, 5 ]
+    console.log(arraySet.size); // 5
+    console.log(arraySet.delete(1)); // true
+    console.log(arraySet.clear()); // undefined
+}
+setOperation();
+
+const mapOperation = () => {
+    const newMap = new Map();
+    newMap.set('id', 1);
+    newMap.set('name', 'Arun');
+    newMap.set('city', 'Chennai');
+    console.log(newMap, 'newMap'); // Map(3) { 'id' => 1, 'name' => 'Arun', 'city' => 'Chennai' }
+    console.log(newMap.get('id')); // 1
+    console.log(newMap.has('name')); // true
+    console.log(newMap.size); // 3
+    console.log(newMap.delete('name')) // true
+    console.log(newMap.clear()); // undefined
+}
+mapOperation();
+
 // Reverse a String
 const reverseString = (stringData) => {
 const strArr = [];
@@ -188,3 +221,131 @@ const findMajority = (arrData) => {
 }
 
 console.log('findMajority', findMajority([1,1,2,2,2,3,1,3,1]));
+
+// First Non-Repeating Character
+const nonRepeatingChar = (data) => {
+    const strArr = data.toLowerCase().split('');
+    for (const dataValue of data) {
+        const inCaseValue = dataValue.toLowerCase();
+        if (strArr.indexOf(inCaseValue) == strArr.lastIndexOf(inCaseValue)) {
+            return inCaseValue;
+        }
+    }
+    return 'There is no Repeated Character';
+}
+console.log('The first non repeated char is - ', nonRepeatingChar('Arundhika'));
+
+// Rotate an array (left/right)
+const rotateLeft = (data, k) => {
+    const arr = data;
+    const valueK = k % arr.length;
+    for( let i = 0; i < valueK; i++) {
+        const unshiftElm = arr.shift();
+        arr.push(unshiftElm);
+    }
+    return arr;
+}
+
+const rotateRight = (data, k) => {
+    const arr = data;
+    const kValue = k % data.length;
+    for (let i = 0; i < kValue; i++) {
+        const pop = arr.pop();
+        arr.unshift(pop);
+    }
+    return arr;
+}
+
+console.log(rotateLeft([1, 2, 3, 4, 5], 2), 'rotating Left'); 
+console.log(rotateRight([1, 2, 3, 4, 5], 2), 'rotating Right'); 
+
+// Balanced Parentheses
+const balancedParantheses = (data) => {
+    const arrData = data.split('');
+    const checkingArr = [];
+    const pairs = {
+        ')': '(',
+        '}': '{',
+        ']': '[',
+    };
+    for (const value of arrData) {
+        if (value === '(' || value === '{' || value === '[') {
+            checkingArr.push(value);
+        } else {
+            const pop = checkingArr.pop();
+            if (pop !== pairs[value]) {
+                return false;
+            }
+        }
+    }
+    return checkingArr.length === 0;
+}
+const checkParantheses = balancedParantheses('({[([])]})');
+console.log(checkParantheses ? 'Proper Parantheses': 'Im-Proper Parantheses');
+
+// Find Missing Number in an Array
+const findMissingArr = (data, n) => {
+    const expectedValue = (n * (n + 1))/2;
+    const actualValue = data.reduce((acc, value) => acc+value, 0);
+    const checkMissingValue = expectedValue-actualValue;
+    return checkMissingValue === 0 ? 'All settled' : checkMissingValue
+}
+const findMissArr = [1,2,3,5];
+const callMissFun = findMissingArr(findMissArr, 5);
+console.log('The Missing Element Status is ', callMissFun);
+
+// Find Intersection in 2 Arrays
+const intersection = (arr1, arr2) => {
+    const intersectionArr = [];
+    const newArr1 = Array.from(new Set(arr1));
+    const newArr2 = Array.from(new Set(arr2));
+    for (const newArrOne of newArr1) {
+        if (newArr2.includes(newArrOne)) {
+            intersectionArr.push(newArrOne);
+        }
+    }
+    return intersectionArr;
+}
+
+console.log(intersection([1,,3,5,7,9], [0,8,6,4,2,1,3,5]), 'intersectionArr');
+
+const findKthLargestNo = (datas, n) => {
+    const data = datas;
+    for (let i=0; i < data.length; i++) {
+        for (let j=0; j < data.length-i-1; j++) {
+            if (data[j] < data[j+1]) {
+                const temp = data[j];
+                data[j] = data[j+1];
+                data[j+1] = temp;
+            }
+        }
+    }
+    return `The ${n} largest is ${data[n-1]} from ${data}`;
+}
+console.log(findKthLargestNo([4,74,25,53,25,12,24,25,2,422,1], 100));
+
+
+const groupAnagrams = (words) => {
+  const map = new Map();
+
+  for (const word of words) {
+    console.log(word, word.split(''), 'wordword', word.split('').sort());
+    // Sort the characters of the word to get a key
+    const key = word.split('').sort().join('');
+    // Add the word to the group with the same sorted key
+    if (!map.has(key)) {
+      map.set(key, []);
+    }
+    console.log(map.get(key), 'mappppp');
+    
+    map.get(key).push(word);
+  }
+
+  // Convert the map values to an array of groups
+  return Array.from(map.values());
+};
+
+const input = ["eat", "tea", "tan", "ate", "nat", "bat"];
+const result = groupAnagrams(input);
+console.log(result);
+

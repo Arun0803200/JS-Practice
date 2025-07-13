@@ -1033,6 +1033,35 @@ Write a query to find the second highest salary from a table.
 Write a query to find duplicate records in a table.
 
 Write a query to transpose rows to columns using CASE.
+-- 📘 Transpose Rows to Columns using CASE in MySQL
+-- Suppose you have a table 'sales' with data like this:
+-- +------------+----------+--------+
+-- | employee   | quarter  | amount |
+-- +------------+----------+--------+
+-- | Alice      | Q1       | 1000   |
+-- | Alice      | Q2       | 1500   |
+-- | Bob        | Q1       | 1200   |
+-- | Bob        | Q2       | 1800   |
+-- +------------+----------+--------+
+
+-- 🎯 Goal: Convert rows into columns like this:
+-- +------------+--------+--------+
+-- | employee   | Q1     | Q2     |
+-- +------------+--------+--------+
+-- | Alice      | 1000   | 1500   |
+-- | Bob        | 1200   | 1800   |
+-- +------------+--------+--------+
+
+-- ✅ Query Using CASE:
+SELECT
+  employee,
+  SUM(CASE WHEN quarter = 'Q1' THEN amount ELSE 0 END) AS Q1,
+  SUM(CASE WHEN quarter = 'Q2' THEN amount ELSE 0 END) AS Q2
+FROM
+  sales
+GROUP BY
+  employee;
+
 
 Write a query to get the total salary of each department.
 
