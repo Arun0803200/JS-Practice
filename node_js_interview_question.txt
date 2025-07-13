@@ -372,3 +372,47 @@ Only run the function if a certain time has passed since the last time it was ca
 | Behavior  | Waits until event stops completely | Executes at regular intervals         |
 | Use Case  | Search inputs, resize events       | Scroll, mousemove, API limit          |
 | Execution | Only **once** after no activity    | Runs repeatedly but limited frequency |
+
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+| #  | Problem Title                       | Concepts               |
+| -- | ----------------------------------- | ---------------------- |
+| 1  | Reverse a string                    | Loop, stack            |
+| 2  | Check palindrome (string or number) | Two pointers           |
+| 3  | Find largest/smallest in an array   | Iteration              |
+| 4  | Frequency of elements in array      | Hash map               |
+| 5  | Sum of digits in a number           | Modulo, loop           |
+| 6  | Count vowels and consonants         | String                 |
+| 7  | Fibonacci series                    | Recursion, memoization |
+| 8  | Prime number check                  | Math, loop             |
+| 9  | Remove duplicates from array        | Set, Map               |
+| 10 | Merge two sorted arrays             | Two pointers           |
+
+
+| #  | Problem Title                 | Concepts              |
+| -- | ----------------------------- | --------------------- |
+| 1  | Two Sum Problem               | Hashing               |
+| 2  | Majority Element in Array     | Boyer–Moore algorithm |
+| 3  | First Non-Repeating Character | Hash map, Queue       |
+| 4  | Rotate an array (left/right)  | Modulo, slicing       |
+| 5  | Balanced Parentheses          | Stack                 |
+| 6  | Find Missing Number           | XOR, sum formula      |
+| 7  | Detect Loop in Linked List    | Floyd’s Cycle         |x
+| 8  | Find Intersection in 2 Arrays | Set, Map              |
+| 9  | Find Kth Largest Element      | Min-Heap              |
+| 10 | Group Anagrams                | Hashing, sorting      |
+
+
+| #  | Problem Title                                  | Concepts                      |
+| -- | ---------------------------------------------- | ----------------------------- |
+| 1  | Longest Substring Without Repeating Characters | Sliding Window, Set           |
+| 2  | Longest Palindromic Substring                  | Dynamic Programming           |
+| 3  | Subarray with Given Sum                        | Prefix Sum, Hashing           |
+| 4  | Merge Intervals                                | Sorting, Stack                |
+| 5  | Word Break Problem                             | Trie + DP                     |
+| 6  | Minimum Swaps to Sort Array                    | Greedy, visited array         |
+| 7  | Job Scheduling to Maximize Profit              | Greedy, Heap                  |
+| 8  | Trapping Rain Water                            | Two pointers                  |
+| 9  | Maximum Area Histogram                         | Stack                         |
+| 10 | LRU Cache Implementation                       | Doubly Linked List + Hash Map |
