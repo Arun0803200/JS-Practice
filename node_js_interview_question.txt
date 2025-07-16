@@ -372,7 +372,10 @@ Only run the function if a certain time has passed since the last time it was ca
 | Behavior  | Waits until event stops completely | Executes at regular intervals         |
 | Use Case  | Search inputs, resize events       | Scroll, mousemove, API limit          |
 | Execution | Only **once** after no activity    | Runs repeatedly but limited frequency |
-
+----------------------------------------------------------------------------------------------------------------------------------------
+What are the uses of multer on node js:
+Multer is middleware for handling multipart/form-data file uploading...
+with using the multer can able to access the upload process...
 
 ----------------------------------------------------------------------------------------------------------------------------------------
 
