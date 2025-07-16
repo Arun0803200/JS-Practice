@@ -376,7 +376,14 @@ Only run the function if a certain time has passed since the last time it was ca
 What are the uses of multer on node js:
 Multer is middleware for handling multipart/form-data file uploading...
 with out using the multer can not able to access the file upload process...
-
+//
+  const upload = multer()
+  appRouter.post('/uploaf-file', upload.single('myfile'), (req: any, res: any) => {
+    const file = req.file;
+    console.log(file, 'file');
+    return res.send({message: 'File uploaded successfully'});
+  })
+//
 ----------------------------------------------------------------------------------------------------------------------------------------
 
 | #  | Problem Title                       | Concepts               |
