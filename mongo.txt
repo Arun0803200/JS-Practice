@@ -1,0 +1,501 @@
+===============================================================================================================
+1️⃣ Core MongoDB Topics (Must-Know)
+===============================================================================================================
+1. What is MongoDB & when to use it vs MySQL
+* MongoDB is a NoSQL.
+* MongoDB is Document orientated Database That store data in JSON-Like documents (BSON)
+        > Data is stored as documents
+        > Documents are grouped into collections
+
+Example (MongoDB document)
+{
+  "_id": "123",
+  "name": "Arun",
+  "email": "arun@gmail.com",
+  "orders": [
+    { "orderId": 1, "amount": 500 },
+    { "orderId": 2, "amount": 1200 }
+  ]
+}
+
+When to Use MongoDB
+-------------------
+* Data structure is dynamic or frequently changing (You can add or remove data on any time)
+* You need fast development and flexibility
+* Application handles large volumes of data
+* Data is hierarchical or nested
+---------------------------------------------------------------------------------------------------------------
+Document, Collection, Database
+ -----------------------------
+ * Document is one single record on Collection (Like table row).
+ * Collection is a collections of multiple records (Like Table).
+ * Database is Collection of multiple Collections.
+
+---------------------------------------------------------------------------------------------------------------
+BSON vs JSON
+------------
+JSON is for communication from bach end to front end, BSON is for store on mongo db its like "Machine language" 
+
+    JSON
+    * JSON (Java Script Object Notation) is humab readable format.
+
+    BSON
+    * BSON (Binary JSON) is not human readable
+    * BSON is read and write is very fast
+    * It has additional data Types
+---------------------------------------------------------------------------------------------------------------
+
+Schema-less vs schema validation
+--------------------------------
+    Schema less:
+    * Schema less means in same document have different key and values
+        Its makes easy to change requirements.
+        Fast development.
+        Don't alter table.
+
+    schema validation:
+    * MongoDB allow schema validation using JSON Schema
+        Still its get flexibility.
+        But with rules.
+
+| Feature     | Schema-less  | Schema validation |
+| ----------- | ------------ | ----------------- |
+| Structure   | Not enforced | Rules enforced    |
+| Flexibility | Very high    | Controlled        |
+| Data safety | Low          | High              |
+| Best for    | Prototypes   | Production        |
+
+---------------------------------------------------------------------------------------------------------------
+
+Embedded documents vs references
+--------------------------------
+    Embedded documents: 
+    * Embedded documents means can store related documents on same documents.
+
+        When use embedded documents:
+            * One Read gives everything
+            * No Joins needed
+            * One to few relationship
+            * Data doesn't grow infinitely
+        
+        When Embedded is bad:
+            * Embedded of arrays grow too large
+            * Data Update frequently
+            * Data shared by many documents
+
+    References:
+    * References means stored data separatlely and link them using an ID.
+
+        When References is good
+            * One-To-Many (Large Data)
+            * Many-To-Many Relation ship
+            * Data reuse across collections
+            * Data grow with out limit
+
+        When References is bad
+            * Too many Joins
+            * Its make slow reads
+
+
+---------------------------------------------------------------------------------------------------------------
+
+===============================================================================================================
+📌 CRUD Operations
+===============================================================================================================
+insertOne, insertMany
+---------------------
+    insertOne:
+        insertOne() is used to insert one document into a collection
+    
+    insertMany:
+        insertMany is used to insert multiple documents at once
+
+---------------------------------------------------------------------------------------------------------------
+find, findOne
+---------------------
+
+    findOne:
+        findOne() returns only one matching document.
+    
+    find:
+        find() returns all matching documents.
+
+---------------------------------------------------------------------------------------------------------------
+
+Filters ($eq, $ne, $in, $nin)
+-----------------------------
+    $eq -> Match exact value
+        eg. db.users.find({ age: { $eq: 25 } })
+
+    $ne -> Match values NOT equal to something
+        eg. db.users.find({ city: { $ne: "Chennai" } })
+
+    $in -> Value should be in given arrays
+        eg. db.users.find({ city: { $in: ["Chennai", "Bangalore"] } })
+
+    $nin -> Value should not be in given arrays
+        eg. db.users.find({ city: { $nin: ["Chennai", "Bangalore"] } })
+---------------------------------------------------------------------------------------------------------------
+
+Projection
+----------
+    * Projection is used to choose which field need to retuen on fields
+    
+| Value | Meaning       |
+| ----- | ------------- |
+| `1`   | include field |
+| `0`   | exclude field |
+
+
+    * Projection in MongoDB is used to specify which fields should be included or excluded in query results,
+     helping reduce data size and improve performance.
+
+---------------------------------------------------------------------------------------------------------------
+
+Sorting, Pagination (skip, limit)
+---------------------------------
+
+    * Sorting means ordering the results
+        1 → ascending (A → Z, small → big)
+       -1 → descending (Z → A, big → small)
+            eg. db.users.find().sort({ age: 1 })
+
+    * Pagination (limit & skip)
+        Show data page by page insted of everything
+            eg. db.users.find().limit(5)
+                db.users.find().skip(5)
+                db.users.find().skip(5).limit(5)
+                db.users
+                    .find()
+                    .sort({ createdAt: -1 })
+                    .skip(10)
+                    .limit(5)
+
+---------------------------------------------------------------------------------------------------------------
+
+Update operators:
+-----------------
+$set, $unset
+
+$inc, $push, $pull
+
+deleteOne, deleteMany
+
+👉 Expect code-based questions here.
+
+2️⃣ Indexing & Performance (Very Important 🔥)
+This is where interviews get serious.
+
+
+What is an index?
+
+
+Types of indexes:
+
+
+Single field
+
+
+Compound
+
+
+Text index
+
+
+Unique index
+
+
+
+
+When indexes improve performance
+
+
+Downsides of indexes
+
+
+explain() and query performance
+
+
+Indexing in high-traffic production apps
+
+
+💡 Be ready to explain how you used indexes in your live project.
+
+3️⃣ Aggregation Framework (Most Asked)
+If you know this well, you stand out.
+
+
+What is aggregation?
+
+
+$match
+
+
+$group
+
+
+$project
+
+
+$sort
+
+
+$lookup (very common)
+
+
+$unwind
+
+
+$limit, $skip
+
+
+Example questions:
+
+
+“How do you calculate total sales per user?”
+
+
+“How do you join two collections?”
+
+
+
+4️⃣ Data Modeling (Interview Favorite)
+They LOVE asking this.
+
+
+Embedding vs Referencing
+
+
+One-to-One
+
+
+One-to-Many
+
+
+Many-to-Many
+
+
+How you designed collections in your project
+
+
+Handling large arrays
+
+
+Avoiding document growth issues
+
+
+👉 Compare this with MySQL normalization — huge plus for you.
+
+5️⃣ MongoDB with Node.js (Your Real Strength 💪)
+You should be very confident here.
+
+
+MongoDB with:
+
+
+Mongoose vs Native Driver
+
+
+
+
+Mongoose:
+
+
+Schema & Models
+
+
+Validation
+
+
+Middleware (pre, post hooks)
+
+
+Populate
+
+
+Lean queries
+
+
+
+
+Connection handling
+
+
+Error handling
+
+
+Transactions (sessions)
+
+
+
+6️⃣ Transactions & Consistency
+
+
+ACID in MongoDB
+
+
+When transactions are needed
+
+
+Multi-document transactions
+
+
+Differences vs MySQL transactions
+
+
+
+7️⃣ Replication & Scalability (Mid–Senior Level)
+Even basic understanding is enough.
+
+
+Replica Set
+
+
+Primary & Secondary
+
+
+Read preference
+
+
+Write concern
+
+
+Sharding (basic idea)
+
+
+Horizontal vs Vertical scaling
+
+
+
+8️⃣ Security & Production Topics
+
+
+Authentication & Authorization
+
+
+Role-based access
+
+
+Environment variables
+
+
+Preventing injection attacks
+
+
+Backup & Restore (mongodump, mongorestore)
+
+
+Monitoring basics
+
+
+
+9️⃣ Comparison Questions (MongoDB vs MySQL) ⭐
+This is where your 4 years MySQL experience shines.
+Be ready for:
+
+
+When to choose MongoDB over MySQL
+
+
+Schema flexibility vs strict schema
+
+
+Joins vs $lookup
+
+
+Transactions
+
+
+Performance differences
+
+
+Scaling strategies
+
+
+Interviewers love real-world tradeoffs, not textbook answers.
+
+🔟 Project-Based Questions (Most Important)
+They WILL ask:
+
+
+Project architecture
+
+
+Why MongoDB was chosen
+
+
+Collections design
+
+
+Indexes used
+
+
+Performance issues faced
+
+
+Production bugs & how you fixed them
+
+
+Data migration
+
+
+Backup strategy
+
+
+👉 Prepare a 2–3 minute story of your MongoDB project.
+
+How to Position Your Experience (Very Important 🎯)
+Say this confidently:
+
+“I have 4 years of strong relational database experience with MySQL and around 6 months of hands-on MongoDB experience in a live production project, where I handled data modeling, aggregation, indexing, and Node.js integration.”
+
+This sounds senior, not junior.
+
+Final Preparation Strategy (2 Weeks Plan)
+Week 1
+
+
+MongoDB basics + CRUD
+
+
+Indexing
+
+
+Aggregation
+
+
+Practice queries daily
+
+
+Week 2
+
+
+Data modeling
+
+
+Node.js + Mongoose
+
+
+Transactions
+
+
+MongoDB vs MySQL
+
+
+Mock interview questions
+
+
+
+If you want, next I can:
+
+
+🔥 Give MongoDB interview questions & answers
+
+
+🧠 Create real project-based MongoDB Q&A
+
+
+📝 Help you frame perfect interview answers using your live project
+
+
+Just tell me 👍
