@@ -85,7 +85,7 @@ console.log('strSub', strSub);
 
 // indexOF
 console.log('indexOf', stre.indexOf('J'))
-console.log('lastIndexOf', stre.lastIndexOf('a'))
+console.log('lastIndexOf', stre.lastIndexOf('a')).         
 
 // Search -> Return the starting Postion of index
 console.log('search', stre.search(/a/));
