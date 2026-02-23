@@ -177,111 +177,260 @@ Update operators:
 -----------------
 $set, $unset
 
+    * $set => is used to add a new field or Update an existing field in a document
+        eg. db.user.updateOne({_id: 1}, {$set: {age: 25, name: "Arun"}});
+
+    * $unset => is used to delete a field completly from a document
+        eg. db.user.updateOne({_id: 1}, {$unset: {age: ""}});
+
 $inc, $push, $pull
+------------------
+
+    * $inc => is used to increase or decrease a numeric value (Atomic Update)
+        + eg. db.user.updateOne({_id: 1}, {$inc: {totalAmount: 100}}); => totalAmount + 100
+        - eg. db.user.updateOne({_id: 2}, {$inc: {totalAmount: -100}}); => totalAmount - 100 
+    
+    * $push => is used to add items into an array
+        eg. db.user.updateOne({_id: 1}, {$push: {skills: "MongoDB"}});
+    
+    * $pull => is used to remove items into an array
+        eg. db.user.updateOne({_id: 1}, {$pull: {skills: "PHP"}});
+---------------------------------------------------------------------------------------------------------------
 
 deleteOne, deleteMany
+---------------------
+    * deleteOne => Used to delete only the first document that matches the condition.
+        eg. db.user.deleteOne({name: "Ajan"});
+        result: {
+                    acknowledged: true,
+                    deletedCount: 1
+                }
+    
+    * deleteMany => Used to delete all documents that match the condition.
+        eg. db.user.deleteMany({ email: "123@gmail.com" });
 
-👉 Expect code-based questions here.
-
+===============================================================================================================
 2️⃣ Indexing & Performance (Very Important 🔥)
-This is where interviews get serious.
-
+===============================================================================================================
 
 What is an index?
-
+-----------------
+    * The index is a Data Structure That helps the database to find the data faster
+    * If there is no index on a table, searching data with condition will require scanning all row in the table
 
 Types of indexes:
+-----------------
+    * Single field:
+        => Index on only one field
+            .eg db.users.createIndex({email: 1});
+    
+    * Compound:
+        => Index on multiple fields (order matters)
+            .eg db.users.createIndex({email: 1, createAt: -1})
 
+    * Text Index:
+        => Used for text searching
+            .eg db.posts.createIndex({ title: "text", description: "text" });
+                db.posts.find({ $text: { $search: "mongodb" } });
 
-Single field
+    * Unique index:
+        => Ensure no duplicate values
+            .eg db.users.createIndex({email: 1}, {unique: true});
 
-
-Compound
-
-
-Text index
-
-
-Unique index
-
-
-
+---------------------------------------------------------------------------------------------------------------
 
 When indexes improve performance
-
+--------------------------------
+    * Indexes improve performance when the Mongo DB can Avoid the scanning entire collections AND directly
+      located the required documents
+    * Indexes help for sort(), $gt, $lt, $gte and $lte
+    * Index only fields used in:
+        find()
+        sort()
+        join / lookup
+        frequent filters
 
 Downsides of indexes
+    ❌ Slow write Operations
+        Every INSERT, UPDATE, DELETE must also update the index (insert → write data + update index)
+        👉 More indexes = slower writes
+    
+    ❌ Extra memory usage
+        Indexes are store in RAM + Disk.
+         👉 Large indexes = More Memory
 
+    ❌ Extra storage cost
+        Each index takes disk space
 
+    ❌ Indexes on low-selectivity fields don’t help much.
+        Examples:
+            status (active/inactive)
+            isDeleted (true/false)
+---------------------------------------------------------------------------------------------------------------
 explain() and query performance
+-------------------------------
+    * explain() is used to show how the mongo db execute the query.
+         👉 Is an Index used or not
+         👉 How many Documents where scanned
+         👉 How fast the query was
+            eg. db.users.find({email: "abc@gmail.com"}).explain();
 
-
-Indexing in high-traffic production apps
-
-
-💡 Be ready to explain how you used indexes in your live project.
-
+:- Be ready to explain how you used indexes in your live project.
+===============================================================================================================
 3️⃣ Aggregation Framework (Most Asked)
-If you know this well, you stand out.
-
+===============================================================================================================
 
 What is aggregation?
+--------------------
+    * Aggregation on mongo db is a framework.
+    * It is Used to process, Transform & Analyze Data
+    * Aggregation is used to when find() method is not enough, eg. Need Reports then goes to aggregation.
 
+Aggregation Pipe-Line
+---------------------
+    * MongoDB Aggregation is Works as a Pipe-Line
+        Input → Stage 1 → Stage 2 → Stage 3 → Output
+    * Each stage:
+        -> Take input from previous stage.
+        -> Process data.
+        -> Processes Output to the next stage.
 
-$match
+$match:
+-------
+    * It Is used to filter documents (like where in MySQL)
+        .eg {$match:  {status: 'active'}}
 
+$group:
+-------
+    * It is used to group the documents and performs the calculations
+        .eg {
+            $group: {
+                _id: "$userId",
+                totalAmt: {$sum: "$amount"}
+            }
+        }
 
-$group
+$project:
+---------
+    * It is used to Selects or reshapes the fields.
+        .eg {
+              $project: {
+                userId: 1,
+                totalAmount: 1,
+                _id: 0
+              }
+            }
 
+$sort:
+------
+    * It is used to sort the result
+        .eg { $sort: { totalAmount: -1 } }
 
-$project
+$lookup (very common):
+----------------------
+    * Perform join between collections
+        .eg {
+              $lookup: {
+                from: "users",
+                localField: "userId",
+                foreignField: "_id",
+                as: "user"
+              }
+            }
 
+$unwind:
+--------
+    * It is used to get multiple document into single object from array of lookup
+        .eg db.orders.aggregate([
+                                  { $unwind: "$items" }
+                                ]);
 
-$sort
+$limit, $skip:
+--------------
+    * Boths are used to controll how many documents are returned.
 
-
-$lookup (very common)
-
-
-$unwind
-
-
-$limit, $skip
-
-
+---------------------------------------------------------------------------------------------------------------
 Example questions:
-
-
 “How do you calculate total sales per user?”
 
 
 “How do you join two collections?”
-
-
-
+===============================================================================================================
 4️⃣ Data Modeling (Interview Favorite)
-They LOVE asking this.
+===============================================================================================================
+
+Embedding vs Referencing:
+-------------------------
+    * Embedded:
+        => Embedded means storing related data on same documents.
+        => Child data is not dynamically grow then goes to store the data as embedded.
+        PROs:
+            * Fast reading (Single Query)
+            * No Joins required
+            * Atomic Update
+        CONs:
+            * Document size can grow
+            * Duplication risk
+            * 16 MB documnet limit
+    
+    * Referencing:
+        => Storing related data on separate collection.
+        When to use Referencing ?
+            * one-to-many (large)
+            * many-to-many
+            * Data grows unbounded
+            * data access independently
+        PROs:
+            * Smaller document
+            * No size limit issues
+            * Avoid or Less Duplication
+        CONs:
+            * Require $lookup (join)
+            * More queries
+            * Slightly slower reads
+
+One-to-One (1:1):
+-----------------
+    * One document related to only one document.
+        eg. User -> Profile, Student -> Id card.
+
+One-to-Many (1:n):
+------------------
+    * One document related to many Documents.
+        eg. User -> Order, Category -> Product.
 
 
-Embedding vs Referencing
+
+Many-to-Many (M:N):
+-------------------
+    * Many documents related to many other documents
+        eg. Users <-> Roles, Students <-> Courses,Product <-> Related-Product 
 
 
-One-to-One
+How you designed collections in your project ?
+----------------------------------------------
+    * When design collection i focused about 
+        => read Vs write frequency
+        => Document size growth
+        => Indexing and performance
+        => Relationship type (1:1), (1:n), (M:n)
+        => Avoided over-normalization
 
+Handling large arrays:
+======================
+    * Large arrays are dangerous on MongoDB because:
+        => Document size increases
+        => Updates becomes heavy
+        => 16MB Document size limit
 
-One-to-Many
-
-
-Many-to-Many
-
-
-How you designed collections in your project
-
-
-Handling large arrays
-
-
-Avoiding document growth issues
+Avoiding document growth issues:
+--------------------------------
+    * MongoDB document should not grow uncontrollably.
+    * Problem with growing documents:
+        => Document relocation on storage
+        => Performance degradation
+        => 16MB Hard limit
+        => Slower Updates
 
 
 👉 Compare this with MySQL normalization — huge plus for you.

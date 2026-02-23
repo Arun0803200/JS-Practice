@@ -1,0 +1,75 @@
+What is react?
+    * React is a Java Script Library.
+    * It is used to build user interface especially for Web-Application.
+----------------------------------------------------------------------------------------------------------------------------
+What are the Features of react ?
+    * Component-Based Architecture
+        => UI is divided into small reusale pieces called components.
+    * SPA (Single Page Application)
+        => SPA means no full page reload like traditional websities.
+        => Loading only one HTML Page
+        => Dynamic updates contents without refreshing the page.
+
+        How react SPA works ?
+            => Browser loads index.html
+            => React loads javascript bundles
+            => React controls entire UI
+            => Routing handled by React Router
+            => Only component change not full page
+
+    * Virtual DOM(Document Object Model):
+        => React updates only the changed parts of the page -> (This make faster performance)
+        => Virtual DOM means a copy of real page used by react to make update faster
+----------------------------------------------------------------------------------------------------------------------------
+useState:
+    * useState is a react hook.
+    * It is used to store and manage data inside a component.
+    * It allow your component to:
+        => Remember values
+        => Update values
+        => Re-Rendering to the UI when its change
+        👉 useState = Memory for your component
+
+    syntax:
+        const [count, setCount] = useState(0);
+        setCount(count+1);
+----------------------------------------------------------------------------------------------------------------------------
+🟡 Phase 2: Important React Concepts
+
+After basics, learn:
+
+Conditional Rendering
+
+Lists & keys
+
+Forms handling
+
+Controlled components
+
+Lifting state up
+
+React Router
+
+API integration (Axios)
+
+Environment variables
+
+🔵 Phase 3: Real Project Skills
+
+Since you’re backend strong, now combine both:
+
+Connect React → Node API
+
+JWT Authentication
+
+Login / Register
+
+Protected routes
+
+CRUD operations
+
+Loading & error states
+
+Pagination
+
+Toast messages

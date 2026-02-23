@@ -1,0 +1,749 @@
+Micro-Services Architecture:-
+-----------------------------
+    * Microservices are an  architecture approach to developing software applications as a collection of small, independent and loosely coupled Services.
+
+    Features:
+    * Each service can be updated, deployed and scaled independently.
+    * Different services can be build using differnt programming languages and databases.
+    * If one service is fails the anoter services will be working fine as long as they are not dependent the failed service.
+
+Why using GRPC for this server to server communication ?
+--------------------------------------------------------
+    * GRPC designed mainly for High Performance service-to-service communication.
+    * Requests and responses are sent as binary data (buffer streams).
+    * It supports two-way (bi-directional) streaming communication.
+
+What is rabbitMQ 🐰 ?
+---------------------
+    * RabbitMQ is a message broker send msg from producer to consumer vai queue.
+    * It is used service to service communication with async.
+    * Load Handling:
+        -> RabbitMQ stor msg and processes as slowly
+    * Retry Mechanism:
+        -> If consumer fails The Msg can be retried.
+    * What is an exchange on rabbitMQ ?
+        * Exchange is a component that receive msg from producer (Messages do NOT go directly to queues).
+        * And the exchange decides which queue should receive them.
+
+    * Types of Exchanges:
+
+    Very Simple Understanding
+    * Direct = Send to specific person
+    * Fanout = Announce to everyone
+    * Topic = Send to group by category
+    * Headers = Send based on message properties
+
+        * Direct Exchange:
+            -> Send Msg to Queue with exact routing key.
+            Producer:
+            ---------
+                const amqp = require('amqplib');
+
+                async function send() {
+                  const conn = await amqp.connect('amqp://localhost');
+                  const channel = await conn.createChannel();
+
+                  await channel.assertExchange('direct_logs', 'direct');
+
+                  channel.publish('direct_logs', 'order.created', Buffer.from('Order Created'));
+                                                 ----------------   
+                  console.log("Message sent");
+                }
+                send();
+
+            Consumer:
+            ---------
+                const amqp = require('amqplib');
+
+                async function receive() {
+                  const conn = await amqp.connect('amqp://localhost');
+                  const channel = await conn.createChannel();
+
+                  await channel.assertExchange('direct_logs', 'direct');
+                  const q = await channel.assertQueue('order_queue');
+
+                  await channel.bindQueue(q.queue, 'direct_logs', 'order.created');
+                                                                  ----------------  
+                  channel.consume(q.queue, msg => {
+                    console.log("Received:", msg.content.toString());
+                  });
+                }
+                receive();
+            -> Only queue bound with order.created receives message.
+        
+        * Fanout Exchange (Broadcast)
+            -> Sends message to ALL queues.
+            -> All services receive the same message.
+            -> No routing key needed.
+            
+            Producer:
+                await channel.assertExchange('broadcast', 'fanout');
+                channel.publish('broadcast', '', Buffer.from('New Order'));
+
+            Consumer 1:
+                await channel.assertExchange('broadcast', 'fanout');
+                const q = await channel.assertQueue('', { exclusive: true });
+
+                await channel.bindQueue(q.queue, 'broadcast', '');
+
+                channel.consume(q.queue, msg => {
+                  console.log("Service 1:", msg.content.toString());
+                });
+        * Topic Exchange (Pattern Match)
+            -> Uses wildcard patterns. 
+                * = one word
+                # = multiple words
+            
+            Producer:
+                await channel.assertExchange('topic_logs', 'topic');
+                channel.publish('topic_logs', 'order.created', Buffer.from('Order Created'));
+
+            Consumer:
+                await channel.assertExchange('topic_logs', 'topic');
+                const q = await channel.assertQueue('');
+
+                await channel.bindQueue(q.queue, 'topic_logs', 'order.*');
+
+                channel.consume(q.queue, msg => {
+                  console.log("Received:", msg.content.toString());
+                });
+
+        * Headers Exchange (Based on Headers)
+            -> Uses message headers instead of routing key.
+
+            Producer:
+                await channel.assertExchange('headers_logs', 'headers');
+                channel.publish(
+                  'headers_logs',
+                  '',
+                  Buffer.from('Order PDF'),
+                  { headers: { type: 'order', format: 'pdf' } }
+                );
+
+            Consumer:
+                await channel.assertExchange('headers_logs', 'headers');
+                const q = await channel.assertQueue('');
+
+                await channel.bindQueue(q.queue, 'headers_logs', '', {
+                  type: 'order',
+                  format: 'pdf',
+                  'x-match': 'all'
+                });
+
+                channel.consume(q.queue, msg => {
+                  console.log("Received:", msg.content.toString());
+                });
+---------------------------------------------------------------------------------------------------------------
+Redis:
+------
+    * Redis is an In-Memory Key-Value databases
+    * Reg getting very fast (Milli Seconds)
+        eg. User → API → DB (heavy queries)
+            User → API → Redis → (fast response)
+
+    ConnectRedis:
+    -------------
+        const redis = require('redis');
+        const client = redis.createClient({
+          url: 'redis://localhost:6379'
+        });
+        client.connect();
+        client.on('error', err => console.log('Redis Error', err));
+
+    API Get and Set Cache:
+    ----------------------
+        const express = require('express');
+        const app = express();
+
+        app.get('/api/home', async (req, res) => {
+          try {
+            const { userId, city } = req.query;
+
+            // Create unique cache key using query string
+            const cacheKey = `home:${userId}:${city}`;
+
+            // 1️⃣ Check cache
+            const cachedData = await client.get(cacheKey);
+
+            if (cachedData) {
+              console.log("From Redis Cache");
+              return res.json(JSON.parse(cachedData));
+            }
+
+            // 2️⃣ If not in cache → Fetch from DB
+            console.log("From Database");
+
+            const homeData = {
+              banners: ["banner1", "banner2"],
+              products: ["shoe", "mobile"],
+              city: city
+            };
+
+            // 3️⃣ Save in Redis (with expiry)
+            await client.setEx(cacheKey, 300, JSON.stringify(homeData));
+            // 300 seconds = 5 minutes
+
+            res.json(homeData);
+
+          } catch (error) {
+            res.status(500).json({ error: "Something went wrong" });
+          }
+        });
+---------------------------------------------------------------------------------------------------------------
+WebSocker:
+----------
+    * WebSocket is a way for browser and server to talk continuously without reconnecting again and again
+
+Socket.io:
+----------
+    * It is a top of Web Socket
+    * It is reconnect automatically
+
+| WebSocket                  | Socket.IO                    |
+| -------------------------- | ---------------------------- |
+| Protocol                   | Library                      |
+| Basic real-time connection | Advanced real-time framework |
+| No auto reconnect          | Auto reconnect               |
+| No rooms by default        | Has rooms & namespaces       |
+| Harder to manage           | Easy to use                  |
+
+---------------------------------------------------------------------------------------------------------------
+Ejabberd:
+---------
+    * Ejabberd is a chat server software
+    * It is mainly used for Chat APPs, Messaging systems, Presence systems (online/offline) and Group Chat
+    * It is based on XMPP (Extensible Messaging and Presence Protocol).
+    * Can handle millions of users.
+    * Multiple servers can work together.
+
+| ejabberd                  | Socket.IO                    |
+| ------------------------- | ---------------------------- |
+| Full chat server          | Just real-time communication |
+| Based on XMPP             | Based on WebSocket           |
+| Built-in presence         | You must build manually      |
+| Built-in group chat       | You must build manually      |
+| Built-in offline messages | You must implement           |
+
+    * ejabberd is an open-source XMPP-based messaging server used to build scalable real-time chat applications.
+     It provides built-in features like user presence, group chat, message routing, and clustering.
+
+---------------------------------------------------------------------------------------------------------------
+Docker:
+-------
+Simple Example
+
+You built:
+----------
+Node.js backend
+
+MySQL database
+
+Redis cache
+
+Now you want to run in:
+-----------------------
+Your laptop
+
+Testing server
+
+Production server
+
+Normally → You must install:
+----------------------------
+Node
+
+MySQL
+
+Redis
+
+Set environment manually
+
+But with Docker:
+----------------
+👉 You pack everything into a container
+👉 Run the container anywhere
+
+| Virtual Machine | Docker         |
+| --------------- | -------------- |
+| Heavy           | Lightweight    |
+| Has full OS     | Shares host OS |
+| Slow startup    | Very fast      |
+| GBs in size     | MBs in size    |
+
+---------------------------------------------------------------------------------------------------------------
+
+AWS Lambda:
+-----------
+where you code run code without managing servers.
+
+    * Upload code
+    * Set trigger
+    * AWS runs it automatically
+    ✅ No server management
+    ✅ Auto scaling
+    ✅ Pay only for usage
+    ✅ Good for microservices
+
+| Normal Server     | Lambda                   |
+| ----------------- | ------------------------ |
+| Always running    | Runs only when triggered |
+| You manage server | AWS manages              |
+| Pay monthly       | Pay per execution        |
+---------------------------------------------------------------------------------------------------------------
+Event Bridge:
+-------------
+EventBridge can work like a cron scheduler in AWS.
+
+
+
+
+---------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------
+From My REsume Questions
+---------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------
+
+
+
+
+1. Basic Microservices Questions
+
+What is Microservices Architecture?
+  * Micro service are an architecture approach to develop software as small, In-dependent and lossely coupled services
+
+Difference between Monolith and Microservices?
+
+Monolith:
+---------
+  * A monolithic architecture is a single unified application where all features (authentication, business logic, database access, UI, etc.)
+    are built and deployed as one service.
+  * It is suitable for small or simple management applications but becomes difficult to manage for highly scalable and complex systems.
+  ✅ Advantages:
+    * No inter-service communication is required.
+    * Easier to develop and deploy initially.
+    * All modules share the same database.
+    * Debugging is simpler in early stages.
+  ❌ Disadvantages:
+    * Entire application must be scaled together (cannot scale individual features).
+    * A single failure can affect the whole system.
+    * Hard to maintain as the project grows.
+    * Technology stack is usually fixed for the entire application.
+    * Deployment takes more time for large applications.
+    * Limited CPU/resource control (all features share the same resources).
+
+Microservices:
+--------------
+  * Microservices architecture splits business logic into multiple small, independent services.
+  * Each service handles a specific functionality and runs independently.
+  * Even if one service fails, other services can continue working (if they are not tightly dependent).
+  * Each service can have its own database and technology stack.
+  ✅ Advantages:
+    * Individual services can be scaled independently.
+    * Faster development with multiple teams.
+    * Technology flexibility (different languages/databases).
+    * Easier to maintain large and complex systems.
+  ❌ Dis-Advantage:
+    * Complex deployment and monitoring.
+    * Service-to-service communication increases network overhead.
+    * Requires proper DevOps and monitoring setup.
+
+What are the advantages of microservices?
+    * Individual services can be scaled independently.
+    * Faster development with multiple teams.
+    * Technology flexibility (different languages/databases).
+    * Easier to maintain large and complex systems.
+
+What are the challenges in microservices?
+    * Complex deployment and monitoring.
+    * Service-to-service communication increases network overhead.
+    * Requires proper DevOps and monitoring setup.
+
+How do microservices communicate with each other?
+  * Microservices communicate in two ways: synchronous and asynchronous.
+  * For synchronous communication, we use HTTP/REST or gRPC when an immediate response is required.
+  * For asynchronous communication, we use message brokers like RabbitMQ,
+    where services communicate through events without waiting for a direct response.
+
+What is API Gateway?
+
+  * API Gateway is a single entry point for all client requests in micro services.
+  * Insted of directly calling the multiple services, they send req to the API Gateway. the gateway then routes the request to the approprite service
+
+What is Service Discovery?
+  * Service Discovery is a Mechanism on micro service architecture.
+  * It used to find the the service is working well or not.
+
+What is the role of Docker in microservices?
+ * Docker is a tool that allows you to package your application and its dependencies into a container.
+ * Container = Lightweight isolated box 📦
+
+ Docker helps by:
+  👉 Packing each service separately
+  👉 Running them independently
+  👉 Avoiding environment conflicts
+
+What is the difference between REST and gRPC?
+  * REST = Representational State Transfer
+    It uses:  
+      * HTTP protocol
+      * JSON format
+      * URL-based endpoints
+
+  * gRPC = Google Remote Procedure Call
+    It uses: 
+      * HTTP/2
+      * Protocol Buffers (binary format)
+      * Strongly typed contracts
+
+Why do we use message brokers like RabbitMQ?
+  * We use message brokers like RabbitMQ to enable asynchronous communication between microservices.
+  * It helps decouple services, improves reliability, and ensures messages are not lost if a service is temporarily unavailable.
+
+---------------------------------------------------------------------------------------------------------------
+
+🔹 2. Intermediate Questions (Based on Your Resume Skills)
+
+Since you used RabbitMQ, Redis, gRPC, AWS Lambda, they will ask:
+
+🐰 RabbitMQ
+
+Why did you use RabbitMQ in your e-commerce project?
+In our e-commerce project, we used RabbitMQ to enable asynchronous communication between microservices.
+For example, when an order is placed, we publish an event to RabbitMQ instead of directly calling payment or inventory services.
+This helps in decoupling services, improving reliability, and handling high traffic efficiently.
+
+What happens if a consumer crashes?
+If a consumer crashes before acknowledging the message, RabbitMQ will automatically requeue the message and deliver it to another available consumer.
+This ensures reliability. However, if auto-acknowledgement is enabled, the message may be lost if the consumer crashes after receiving it.
+
+How do you ensure message durability?
+Durable Queue + Persistent Message + Manual ACK = Reliable Messaging
+
+What is dead letter queue?
+  * We used a delayed processing mechanism using TTL and Dead Letter Queue.
+  * The message stayed in the main queue until the scheduled publish time.
+  * Once the time expired, it was moved to another queue where it was processed to update the product status. 
+
+How do you avoid message duplication?
+  * You don’t prevent duplicates in RabbitMQ.
+  * You handle duplicates in your application using idempotency (Store processed message IDs to prevent duplicates (RabbitMQ case).).
+
+🔴 Redis
+
+Why did you use Redis in microservices?
+  * Because microservices: 
+    * Handle high traffic
+    * Need fast response
+    * Need shared temporary data
+
+  * Product list API called 10,000 times.
+    Instead of querying DB every time:
+    ✔ Store result in Redis
+    ✔ Return from Redis
+
+How Redis helps in performance improvement?
+Main reason:
+  👉 Redis stores data in memory (RAM)
+  👉 RAM is much faster than disk 
+  * So reading from Redis is much faster than reading from database.
+
+How do you handle cache invalidation?
+    In our application, we cached configuration settings in Redis to improve performance.
+    Whenever a setting was updated, we synchronized the cache by updating the Redis entry after updating the database.
+    This helped us maintain cache consistency and avoid stale data.
+
+What is difference between Redis and RabbitMQ?
+| Feature      | Redis                      | RabbitMQ                 |
+| ------------ | -------------------------- | ------------------------ |
+| Purpose      | Caching & fast storage     | Message delivery         |
+| Data Storage | In-memory                  | Queue-based              |
+| Persistence  | Optional                   | Designed for reliability |
+| Messaging    | Pub/Sub (not persistent)   | Persistent messaging     |
+| Use Case     | Cache, session, rate limit | Async communication      |
+
+
+⚡ gRPC
+
+Why did you choose gRPC instead of REST?
+  In our microservices architecture, we used gRPC for internal service-to-service communication because it offers high performance through HTTP/2 and Protocol Buffers.
+  It provides strong contract enforcement, smaller payload size, and built-in streaming support.
+  For public-facing APIs, we still preferred REST because it is more client-friendly and widely supported.
+
+What is Protocol Buffers?
+  👉 A way to structure and send data in a small, fast binary format.
+
+How does gRPC improve performance?
+  gRPC improves performance because it uses HTTP/2, which allows multiple requests to use the same connection.
+  This reduces connection overhead.
+  It also uses Protocol Buffers, which send data in a smaller binary format instead of JSON.
+  Because of this, data transfer is faster.
+  gRPC also supports streaming, which helps in handling continuous data efficiently.
+  So it is very suitable for high-performance communication between microservices.
+
+When should we NOT use gRPC?
+  * We should avoid gRPC when building public-facing APIs or browser-based applications, since REST is more widely supported and easier to integrate.
+  * gRPC also adds complexity with Protocol Buffers and code generation, so for simple applications with low traffic, REST is usually sufficient and easier to maintain.
+
+☁️ AWS Lambda
+
+Why did you use Lambda for background jobs?
+  Lambda is a serverless compute service.
+  It runs code:
+    * Without managing servers.
+    * Only when triggered.
+    * You pay only for execution time.
+
+  We used AWS Lambda for background jobs because it provides a serverless, event-driven execution model.
+  It automatically scales based on workload, reduces infrastructure management, and is cost-effective since we only pay for execution time.
+  It was ideal for asynchronous tasks like notifications and scheduled processing in our microservices architecture.
+
+Difference between cron job and Lambda?
+
+| Feature           | Cron Job           | Lambda             |
+| ----------------- | ------------------ | ------------------ |
+| Runs On           | Your server        | AWS managed        |
+| Server Management | You manage         | AWS manages        |
+| Scaling           | Manual             | Auto scaling       |
+| Cost              | Server runs always | Pay per execution  |
+| Trigger           | Time-based only    | Event-based + time |
+
+
+What are cold starts?
+  Lambda is not currently running (no active instance)
+  A new request comes
+  AWS creates a new execution environment
+  Loads your code
+  Then processes the request
+
+  👉 That delay is called Cold Start.
+
+When should we use serverless in microservices?
+  If your system is based on:
+    * Queue messages
+    * File uploads
+    * API triggers
+    * Scheduled jobs
+  
+  Best for:
+    * Email sending
+    * Image processing
+    * Report generation
+    * Notifications
+---------------------------------------------------------------------------------------------------------------
+
+🔹 3. Advanced Microservices Questions (4 Years Experience Level)
+
+These are important for you.
+
+How do you handle distributed transactions?
+1️⃣ The Problem
+Imagine an order process:
+  * Payment Service charges the user
+  * Inventory Service reserves stock
+  * Shipping Service prepares shipment
+
+If payment succeeds but inventory fails, we need a way to rollback payment, so the system stays consistent.
+| Approach             | How it Works                             | Pros                   | Cons                                   |
+| -------------------- | ---------------------------------------- | ---------------------- | -------------------------------------- |
+| 2PC                  | Lock & commit across services            | Strong consistency     | Slow, hard to scale                    |
+| Saga (Choreography)  | Event-driven, each service triggers next | Decoupled, scalable    | Harder to visualize flow               |
+| Saga (Orchestration) | Central coordinator manages flow         | Clear flow, easy retry | Coordinator is single point of failure |
+| Event Sourcing       | Store events, rebuild state              | Auditable, reliable    | More complex architecture              |
+
+What is Saga pattern?
+  * Saga pattern means: when an order is created, the order data is sent to a queue to process payment.
+  * If the payment succeeds, the next step is processed, and if any step fails, compensating actions are taken to undo previous steps.
+  * This communication between services can be done using RabbitMQ.
+
+What is eventual consistency?
+  * Not immediate, but guaranteed to become consistent over time.
+  * Works well with Sagas, event-driven systems, and distributed microservices, where strict real-time consistency is too slow or impossible.
+
+How do you handle service-to-service authentication?
+  * Service-to-service authentication ensures trust between microservices.
+  * Options include: API keys, JWTs, mTLS, OAuth2.
+  * Best practice: use short-lived tokens and encrypted connections.
+
+How do you monitor microservices?
+
+| Aspect        | Tool / Technique        | Purpose                             |
+| ------------- | ----------------------- | ----------------------------------- |
+| Logging       | ELK, Graylog            | See detailed logs from all services |
+| Metrics       | Prometheus, Grafana     | Monitor performance & health        |
+| Tracing       | Jaeger, Zipkin          | Follow requests across services     |
+| Health Checks | `/health` endpoints     | Detect failures quickly             |
+| Alerts        | Alertmanager, PagerDuty | Notify when something goes wrong    |
+
+What is circuit breaker pattern?
+  Order Service calls Payment Service.
+  If Payment Service is down, Circuit Breaker prevents flooding it with requests and immediately returns an error.
+
+What is bulkhead pattern?
+
+How do you implement rate limiting?
+  Prevent a client or service from overwhelming your service.
+  allow a fixed number of requests per second, drop or queue extra requests.
+  count requests per time window.
+
+How do you handle versioning in microservices?
+  Purpose: Allow services to evolve without breaking clients.
+  Strategies:
+  URI versioning: /v1/orders, /v2/orders
+  Header versioning: Accept: application/vnd.orders.v2+json
+  Semantic versioning of API: track minor/major change
+  Best practice: Keep old versions running until clients migrate, then deprecate safely.
+
+How do you scale microservices?
+Horizontal scaling (most common):
+  * Run multiple instances of a service behind a load balancer.
+
+Vertical scaling:
+  * Increase CPU/memory of a single instance (less preferred).
+
+---------------------------------------------------------------------------------------------------------------
+
+🔹 4. Scenario-Based Questions (Very Important)
+
+These are commonly asked for experienced developers.
+
+🔥 Scenario 1:
+
+"If one microservice is down, how will your system behave?"
+
+🔥 Scenario 2:
+
+"In RabbitMQ, what if 1000 messages come but only 2 consumers are available?"
+
+🔥 Scenario 3:
+
+"In your betting app (Racer Exchange), how do you ensure users don’t place duplicate bids?"
+
+🔥 Scenario 4:
+
+"How do you handle data consistency between Order Service and Payment Service?"
+
+🔥 Scenario 5:
+
+"If Redis goes down, what happens?"
+
+---------------------------------------------------------------------------------------------------------------
+
+🔹 5. Project-Based Questions (From Your Resume)
+
+These are very important because interviewer will ask from your real work.
+
+🏛️ JCM – Political Platform
+
+How did you design microservices for event and media management?
+
+Why did you choose Azure Cosmos DB?
+
+How did you handle 30,000+ PDF generation?
+
+How did you implement CRON for push notifications?
+
+How did you optimize media delivery using CDN?
+
+How did you implement multi-language support?
+
+🛍️ Spurt-Commerce (E-commerce)
+
+How did you split services? (User, Order, Payment, Inventory?)
+
+How did RabbitMQ help in order processing?
+
+How did you handle payment failure?
+
+How did you implement add-ons dynamically?
+
+How did you handle webhooks?
+
+🏇 Racer Exchange (Betting Platform)
+
+This is strong project — expect tough questions.
+
+How did you manage real-time odds updates?
+
+How did you ensure high performance?
+
+How did you prevent race conditions?
+
+How did you handle concurrent bids?
+
+Why MS SQL for betting platform?
+
+How did you ensure transaction safety?
+
+💼 Any-Openings (HR Tech)
+
+Why did you use Ejabberd for chat?
+
+How did you implement real-time updates?
+
+How did you handle large number of concurrent users?
+
+---------------------------------------------------------------------------------------------------------------
+
+🔹 6. Node.js + Microservices Combo Questions
+
+Since you are Node backend developer:
+
+How does Node handle concurrent requests?
+
+How do you scale Node microservices?
+
+What is clustering?
+
+How do you handle 1000 concurrent requests?
+
+How do you prevent memory leaks?
+
+How do you handle unhandled promise rejection?
+
+How do you log errors in production?
+
+---------------------------------------------------------------------------------------------------------------
+
+🔹 7. DevOps & Deployment Questions
+
+Since you used Docker & AWS:
+
+How do you deploy microservices using Docker?
+
+What is Docker Compose?
+
+How do services communicate inside Docker?
+
+How do you manage environment variables?
+
+How do you handle CI/CD?
+
+---------------------------------------------------------------------------------------------------------------
+
+🔥 VERY IMPORTANT QUESTIONS FOR YOU
+
+Because you have 4 years experience, prepare strong answers for:
+
+Saga Pattern
+
+Distributed Transactions
+
+Idempotency
+
+Circuit Breaker
+
+Rate Limiting
+
+Caching Strategy
+
+Event-driven architecture
+
+Message retry strategy
+
+Handling duplicate messages
+
+Scaling strategy
+
+---------------------------------------------------------------------------------------------------------------
