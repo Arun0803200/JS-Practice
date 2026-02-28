@@ -21,8 +21,9 @@ console.log('push', arr.push('9'), 'after push -->>', arr);
 // shift
 console.log('shift', arr.shift(), 'After Shift the array', arr);
 
-//unshift
-console.log('ubshift', arr.unshift('1'), 'After unshift the arr', arr);
+// unshift
+// unshift return the length of the array after unshift, and it is add the element in starting of the array
+console.log('unshift', arr.unshift('1'), 'After unshift the arr', arr);
 
 // delete
 console.log(delete arr[0],'After delete the arr', arr);
