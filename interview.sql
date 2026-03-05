@@ -228,7 +228,7 @@ That info is never lost, even if the server shuts down.
 🟢 Basic Level
 What is MySQL? How is it different from SQL?
 *) Mysql is an open-source relational database management system(RDBMS).
-*) It is based on Structure Query anguage(SQL).
+*) It is based on Structure Query Language(SQL).
 *) Managing and organizing data in relational Database.
 
 :) My-SQL is a software that stores and manages data using SQL.

@@ -384,6 +384,53 @@ with out using the multer can not able to access the file upload process...
     return res.send({message: 'File uploaded successfully'});
   })
 //
+
+----------------------------------------------------------------------------------------------------------------------------------------
+// Create Node JS Server without using the third party packages
+
+const http = require('http');
+const server = http.createServer((req, res) => {
+    const method = req.method;
+    const parseUrl = new URL(req.url, `http://${req.headers.host}`);
+    
+    if (method === 'GET' && parseUrl.pathname === '/get-user') {
+        const response = {
+            sts: 1,
+            msg: 'Success',
+            data: [
+                {
+                    id: 1,
+                    name: 'Arun',
+                    age: 25
+                },
+                {
+                    id: 2,
+                    name: 'Babu',
+                    age: 35
+                },
+                {
+                    id: 3,
+                    name: 'Chan',
+                    age: 18
+                }
+            ]
+        };
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify(response));
+    } else {
+        const response = {
+            sts: 0,
+            msg: 'Request not found',
+        };
+        res.writeHead(404, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify(response));
+    }
+});
+
+server.listen(3000, () => {
+    console.log('Server running on http://localhost:3000');
+});
+
 ----------------------------------------------------------------------------------------------------------------------------------------
 
 | #  | Problem Title                       | Concepts               |
