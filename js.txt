@@ -1,0 +1,44 @@
+1. What is closure on java script ?
+    * Closure is a function that rembers the variables from its outer scope
+      even after the outer scope is executed.
+    function outer() {
+        let counter = 0;
+        function inner() {
+            counter++;
+            console.log('counter: ', counter);
+        }
+        return inner;
+    }
+
+    const container = outer();
+    container();
+    container();
+    container();
+
+2. What is hoisting ?
+    * Hoisting allows variables and functions to be used before their declaration in the code
+      because JavaScript processes declarations first.
+
+    Variable Hoisting (var):
+        * When you declare a varibale using var then only declaration is hoisted not the value.
+          eg. console.log(a); // undefined
+              var a = 10;
+
+        * var is a global variable.
+
+        * It is allowed to replace, redeclare and hoisting.
+
+        * It is functional scoping variable.
+
+    Hoisting with "let":
+      * It is allowed only replace the variable.
+
+      * It is not redeclare and hoisting.
+
+      * It is block scope Variable.
+
+    Hoisting with "const"
+      * It can't allow to replace, re-declare and hoisting the variable.
+
+      * it is block scope variable.  
+

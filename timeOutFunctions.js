@@ -23,7 +23,7 @@ const interal = setInterval(() => {
     if (counter === 5) {
         clearInterval(interal);
     }
-},1500);
+}, 1500);
 
 // process.nextTick()
 console.log('start next tick');
@@ -42,3 +42,45 @@ setImmediate(() => {
     console.log('Set immediate ......'); // this one is execute befor process.tick() 
 });
 console.log('immediate end.......');
+
+
+// Debounction Function
+let timer;
+function debouncing(value, fn) {
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+        fn(value);
+    }, 2000);
+}
+
+function callApi(val) {
+    console.log('Call Api with: ' + val)
+}
+
+function callDebouncing(val) {
+    debouncing(val, callApi);
+}
+
+callDebouncing('a');
+callDebouncing('ab');
+callDebouncing('abc');
+
+
+// Rate Limiter Function
+let startDate = Date.now();
+const allowedReq = 2;
+const windowsMs = 3000;
+let reqCount = 0;
+setInterval(() => {
+    const now = Date.now();
+    if ((now - startDate < windowsMs) && reqCount < allowedReq) {
+        console.log('Request Allowed'); reqCount++;
+
+    }
+    else {
+        console.log('Too many Req');
+    } if (now - startDate > windowsMs) {
+        startDate = Date.now();
+        reqCount = 0;
+    }
+}, 500)
